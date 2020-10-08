@@ -19,11 +19,10 @@ namespace TelemetryDecoder
         private string _fileName;
         private bool _isDecodeStarting;
         private bool _isFileOpened;
-
         
         private long _imageCounter; // Счетчик сохранненых изображений.
 
-        private FileDecoder _fileDecoder;
+        private DecoderFile _fileDecoder;
 
         private Panel[] _allChannelsPanels = new Panel[6]; // Панели на которых находятся FLP для всех каналов.
         private Panel[] _channelsPanels = new Panel[6]; // Панели на которых находятся FLP для каждого канала.
@@ -144,7 +143,7 @@ namespace TelemetryDecoder
                     _isDecodeStarting = true;
                     btnStartStopDecode.Text = "Остановить";
 
-                    _fileDecoder = new FileDecoder(_fileName, reedSoloFlag, nrzFlag)
+                    _fileDecoder = new DecoderFile(_fileName, reedSoloFlag, nrzFlag)
                     {
                         ThreadSafeUpdateGui = UpdateGuiDecodeData
                     };

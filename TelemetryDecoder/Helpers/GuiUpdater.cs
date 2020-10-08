@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Windows.Forms;
-using TelemetryDecoder.Decode;
+using TelemetryDecoder.GuiElements;
 
 namespace TelemetryDecoder.Helpers
 {
@@ -184,8 +184,6 @@ namespace TelemetryDecoder.Helpers
             rtbServiceData.BorderStyle = BorderStyle.None;
         }
 
-        #region Обновление данных декодирования на GUI.
-
         /// <summary>
         /// Обновление данных декодирования на GUI.
         /// </summary>
@@ -330,8 +328,6 @@ namespace TelemetryDecoder.Helpers
 
                 listImagesForSave[i].Add(image);
             }
-        }
-       
-        #endregion
+        }     
     }
 }

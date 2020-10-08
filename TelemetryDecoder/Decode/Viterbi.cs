@@ -1,10 +1,11 @@
 ﻿using System;
+using TelemetryDecoder.Helpers;
 
 namespace TelemetryDecoder.Decode
 {
     class Viterbi
     {
-        private int[,] _mettab = new int[2,2]; // Metric table, [sent sym, rx symbol]
+        private int[,] _mettab = new int[2, 2]; // Metric table, [sent sym, rx symbol]
         private int[] _cMetric = new int[64];
         private int _gFirst;
         private int[] _mets = new int[4];
@@ -14,7 +15,6 @@ namespace TelemetryDecoder.Decode
         private int _bestState;
         private int[] _pths = new int[2 * Constants.PMEM];
 
-        #region Конструктор.
         public Viterbi()
         {
             // метрики для витерби
@@ -33,10 +33,7 @@ namespace TelemetryDecoder.Decode
 
             _gFirst = 1;
         }
-        
-        #endregion
 
-        #region Декодирование Витерби.
         public int DecodeViterbi(bool[] bits_buf, byte[] vit_buf)
         {
             ulong pk, pu;
@@ -55,18 +52,18 @@ namespace TelemetryDecoder.Decode
                         _cMetric[i] -= 32768;
                 else
                     if (_cMetric[0] < -0x7fffffff + 10000)
-                        for (int i = 0; i < 64; i++)
-                            _cMetric[i] += -32768;
+                    for (int i = 0; i < 64; i++)
+                        _cMetric[i] += -32768;
 
                 //Read input symbol pair and compute branch metrics
 
                 sym0 = bits_buf[indIn];
                 sym1 = bits_buf[indIn + 1];
-                
+
                 _mets[0] = _mettab[0, Convert.ToInt32(sym1)] + _mettab[0, Convert.ToInt32(sym0)];
                 _mets[3] = _mettab[1, Convert.ToInt32(sym1)] + _mettab[1, Convert.ToInt32(sym0)];
                 _mets[1] = _mettab[0, Convert.ToInt32(sym1)] + _mettab[1, Convert.ToInt32(sym0)];
-                _mets[2] = _mettab[1, Convert.ToInt32(sym1)] + _mettab[0, Convert.ToInt32(sym0)];                
+                _mets[2] = _mettab[1, Convert.ToInt32(sym1)] + _mettab[0, Convert.ToInt32(sym0)];
 
                 _decc = 0;
 
@@ -172,7 +169,7 @@ namespace TelemetryDecoder.Decode
                     for (int j = 0; j < 64 - 6; j++)
                     {
                         if (Convert.ToBoolean(Convert.ToInt32(_pths[2 * pu + Convert.ToUInt64(_bestState >> 5)]) & Convert.ToInt32(1 << (_bestState & 0x1f))))
-                            _bestState |= 0x40; 
+                            _bestState |= 0x40;
 
                         _bestState = _bestState >> 1;
                         pu = (pu - 1) % Convert.ToUInt64(Constants.PMEM);
@@ -201,8 +198,6 @@ namespace TelemetryDecoder.Decode
             }
             return ind;
         }
-
-        #endregion
 
         private void Butterfly(int i, int sym)
         {

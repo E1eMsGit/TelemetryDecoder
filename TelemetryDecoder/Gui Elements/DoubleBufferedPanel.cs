@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace TelemetryDecoder.Helpers
+namespace TelemetryDecoder.GuiElements
 {
     class DoubleBufferedPanel : Panel
     {

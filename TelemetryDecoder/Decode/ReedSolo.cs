@@ -31,26 +31,22 @@ namespace TelemetryDecoder.Decode
         private byte[] err_mas = { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 };
 
         private byte[] S = new byte[32];
-        private byte[,] SM = new byte[16,16];
-        private byte[,] SSM = new byte[16,16];
-        private byte[,] SSM1 = new byte[16,16];
+        private byte[,] SM = new byte[16, 16];
+        private byte[,] SSM = new byte[16, 16];
+        private byte[,] SSM1 = new byte[16, 16];
 
         private byte[] SIG = new byte[17];
         private byte[] SS = new byte[16];
         private byte[] ER = new byte[255];
         private byte[] SV = new byte[32];
 
-        #region Конструктор.
         public ReedSolo()
         {
             form_C_GF();
             form_SV();
-            form_Rdx();          
+            form_Rdx();
         }
 
-        #endregion
-        
-        #region Декодирование РС.
         public void Decode_RS(byte[] incomingTransportFrame, bool isReedSolo)
         {
             int z;
@@ -179,14 +175,14 @@ namespace TelemetryDecoder.Decode
 
                 for (int i = 0; i < 255; i++)
                 {
-                   incomingTransportFrame[i * 4 + m] = GF_elem[u1[i]];
+                    incomingTransportFrame[i * 4 + m] = GF_elem[u1[i]];
                 }
             }
         }
 
-        #endregion
-
-        #region Сложение.
+        /// <summary>
+        /// Сложение.
+        /// </summary>
         private int sm2(int d1, int d2)
         {
             if (d1 > 255 || d2 > 255 || d1 < 0 || d2 < 0)
@@ -198,9 +194,9 @@ namespace TelemetryDecoder.Decode
             return C_GF[d1 ^ d2];
         }
 
-        #endregion
-
-        #region Умножение.
+        /// <summary>
+        /// Умножение.
+        /// </summary>
         private int mp2(int d1, int d2)
         {
             int d;
@@ -215,9 +211,10 @@ namespace TelemetryDecoder.Decode
 
             return d;
         }
-        #endregion
 
-        #region Степень.
+        /// <summary>
+        /// Степень.
+        /// </summary>
         private int pw2(int x, int n)
         {
             if (x == 255)
@@ -226,9 +223,9 @@ namespace TelemetryDecoder.Decode
             return x * n % 255;
         }
 
-        #endregion
-
-        #region Формирование преобразования произвольного байта в элемент поля Галуа.
+        /// <summary>
+        /// Формирование преобразования произвольного байта в элемент поля Галуа.
+        /// </summary>
         private void form_C_GF()
         {
             for (int i = 0; i < 256; i++)
@@ -238,8 +235,6 @@ namespace TelemetryDecoder.Decode
             }
         }
 
-        #endregion
-
         private void form_SV()
         {
             for (int i = 0; i < 32; i++)
@@ -248,7 +243,9 @@ namespace TelemetryDecoder.Decode
             }
         }
 
-        #region Формирование псевдошумовой последовательности.
+        /// <summary>
+        /// Формирование псевдошумовой последовательности.
+        /// </summary>
         private void form_Rdx()
         {
             int c, d, c1;
@@ -270,11 +267,9 @@ namespace TelemetryDecoder.Decode
                 Rdx[i] = Convert.ToByte(c);
                 Rdx[i + 255] = Convert.ToByte(c);
                 Rdx[i + 510] = Convert.ToByte(c);
-                Rdx[i + 765] = Convert.ToByte(c);                
+                Rdx[i + 765] = Convert.ToByte(c);
             }
         }
-
-        #endregion
 
         private void form_S()
         {
@@ -296,29 +291,29 @@ namespace TelemetryDecoder.Decode
         private void form_SM_SS(int n)
         {
             for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                SM[i, j] = S[i + j];
+                for (int j = 0; j < n; j++)
+                    SM[i, j] = S[i + j];
 
             for (int i = 0; i < n; i++)
                 SS[i] = S[n + i];
 
             for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                SSM[i, j] = SM[i, j];
+                for (int j = 0; j < n; j++)
+                    SSM[i, j] = SM[i, j];
         }
 
         private void form_BM_SS(int n)
         {
             for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                SM[i, j] = Convert.ToByte(pw2(err_pos[j], (i + 112) * 11 % 255));
+                for (int j = 0; j < n; j++)
+                    SM[i, j] = Convert.ToByte(pw2(err_pos[j], (i + 112) * 11 % 255));
 
             for (int i = 0; i < n; i++)
                 SS[i] = S[i];
 
             for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                SSM[i, j] = SM[i, j];
+                for (int j = 0; j < n; j++)
+                    SSM[i, j] = SM[i, j];
         }
 
         private int inv_SM(int n)
@@ -326,8 +321,8 @@ namespace TelemetryDecoder.Decode
             int d, det, D;
 
             for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                SSM[i, j] = SM[i, j];
+                for (int j = 0; j < n; j++)
+                    SSM[i, j] = SM[i, j];
 
             det = find_det(n);
 
@@ -338,9 +333,9 @@ namespace TelemetryDecoder.Decode
                 D = 255 - det;
 
                 for (int i = 0; i < n; i++)
-                for (int j = 0; j < n; j++)
-                    SSM[i,j] = Convert.ToByte(mp2(SSM1[i,j], D));
-                                
+                    for (int j = 0; j < n; j++)
+                        SSM[i, j] = Convert.ToByte(mp2(SSM1[i, j], D));
+
                 // в SSM1 результат произведения исходной матрицы и кофактора
                 // дла проверки правильности нахождения кофактора
                 // __ можно убрать
@@ -348,15 +343,15 @@ namespace TelemetryDecoder.Decode
                 {
                     for (int j = 0; j < n; j++)
                     {
-                        SSM1[i,j] = 255;
+                        SSM1[i, j] = 255;
 
                         for (int k = 0; k < n; k++)
                         {
-                            d = mp2(SM[i,k], SSM[k,j]);
-                            SSM1[i,j] = Convert.ToByte(sm2(SSM1[i,j], d));
+                            d = mp2(SM[i, k], SSM[k, j]);
+                            SSM1[i, j] = Convert.ToByte(sm2(SSM1[i, j], d));
                         }
                     }
-                }              
+                }
             }
             return det;
         }
@@ -370,7 +365,7 @@ namespace TelemetryDecoder.Decode
                 for (int j = 0; j < n; j++)
                 {
                     form_det(i, j, n);
-                    SSM1[i,j] = Convert.ToByte(find_det(n - 1));
+                    SSM1[i, j] = Convert.ToByte(find_det(n - 1));
                 }
             }
 
@@ -388,22 +383,22 @@ namespace TelemetryDecoder.Decode
         private void form_det(int i1, int j1, int n)
         {
             for (int i = 0; i < i1; i++)
-            for (int j = 0; j < n; j++)
-                SSM[i, j] = SM[i, j];
+                for (int j = 0; j < n; j++)
+                    SSM[i, j] = SM[i, j];
 
             for (int i = i1 + 1; i < n; i++)
-            for (int j = 0; j < n; j++)
-                SSM[i - 1, j] = SM[i, j];
+                for (int j = 0; j < n; j++)
+                    SSM[i - 1, j] = SM[i, j];
 
             for (int j = j1 + 1; j < n; j++)
-            for (int i = 0; i < n; i++)
-                SSM[i, j - 1] = SSM[i, j];
+                for (int i = 0; i < n; i++)
+                    SSM[i, j - 1] = SSM[i, j];
 
 
             for (int i = 0; i < n; i++)
             {
-                SSM[i,n - 1] = 255;
-                SSM[n - 1,i] = 255;
+                SSM[i, n - 1] = 255;
+                SSM[n - 1, i] = 255;
             }
         }
 
@@ -441,16 +436,16 @@ namespace TelemetryDecoder.Decode
                 {
                     for (int k = 0; k < n; k++)
                     {
-                        d = SSM[i,k];
-                        SSM[i,k] = SSM[t,k];
-                        SSM[t,k] = Convert.ToByte(d);
+                        d = SSM[i, k];
+                        SSM[i, k] = SSM[t, k];
+                        SSM[t, k] = Convert.ToByte(d);
                     }
                 }
-            
+
                 for (i = t + 1; i < n; i++)
                 {
-                    d = SSM[i,t];
-                    d3 = SSM[t,t];
+                    d = SSM[i, t];
+                    d3 = SSM[t, t];
 
                     if (d != 255)
                     {
@@ -461,9 +456,9 @@ namespace TelemetryDecoder.Decode
 
                         for (int j = t; j < n; j++)
                         {
-                            d1 = mp2(SSM[t,j], d);
-                            d2 = mp2(SSM[i,j], d3);
-                            SSM[i,j] = Convert.ToByte(sm2(d1, d2));
+                            d1 = mp2(SSM[t, j], d);
+                            d2 = mp2(SSM[i, j], d3);
+                            SSM[i, j] = Convert.ToByte(sm2(d1, d2));
                         }
                     }
                 }

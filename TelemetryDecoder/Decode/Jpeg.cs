@@ -1,4 +1,5 @@
 ﻿using System;
+using TelemetryDecoder.Helpers;
 
 namespace TelemetryDecoder.Decode
 {
@@ -6,7 +7,7 @@ namespace TelemetryDecoder.Decode
     {
         public int[] video_mass = new int[Constants.DL_VIDEO]; //Буфер видео - пикселы, после декомпроессии jpeg
         public byte[] jpeg_buf_in = new byte[Constants.DL_JPEG]; //Буфер jpeg с шапкой.
-        
+
         private int _dl_jpeg_in;
         private int ind_jpeg_in;    //индекс и кол-во на выдачу
         private byte _Q_Value; // Фактор качества.
@@ -16,7 +17,7 @@ namespace TelemetryDecoder.Decode
             public int L;
             public int V;
         };
-        
+
         private DC_TABLE[] DC_HUF = new DC_TABLE[16];
         private DC_TABLE[,] AC_HUF = new DC_TABLE[16, 11];
 
@@ -49,31 +50,28 @@ namespace TelemetryDecoder.Decode
 
         };
 
-        private int[,] QUANT = new int[8,8];
-        private float[,] DCT = new float[8,8];
-        private float[,] DCT_T = new float[8,8];
+        private int[,] QUANT = new int[8, 8];
+        private float[,] DCT = new float[8, 8];
+        private float[,] DCT_T = new float[8, 8];
         private short[] DATA = new short[64];
-       
+
         private byte _curByte;
-        
-        private int[,] RES_QVANT = new int[8,8];
-        private int[,] RES_DEQVANT = new int[8,8];
-        private float[,] JPG = new float[8,8];
+
+        private int[,] RES_QVANT = new int[8, 8];
+        private int[,] RES_DEQVANT = new int[8, 8];
+        private float[,] JPG = new float[8, 8];
         private float[,] JPG1 = new float[8, 8];
 
         private int CurBit;
 
-        #region Конструктор
         public Jpeg()
         {
             FillTables();
             FillDctMatrix();
         }
 
-        #endregion
-
         public int DeCompress(int x, int dl_jpeg_in, byte Q_Value)
-        {            
+        {
             int k, Number;
             int PDIFF;
             int Row;
@@ -89,7 +87,7 @@ namespace TelemetryDecoder.Decode
             PDIFF = 0;
 
             indv = 0;
-            
+
             if (_Q_Value <= 0)
             {
                 return 0;
@@ -134,8 +132,8 @@ namespace TelemetryDecoder.Decode
                 } while (k < 64);
 
                 for (int i = 0; i < 8; i++)
-                for (int j = 0; j < 8; j++)
-                    RES_QVANT[i, j] = DATA[ZigzagToTable[i, j]];
+                    for (int j = 0; j < 8; j++)
+                        RES_QVANT[i, j] = DATA[ZigzagToTable[i, j]];
 
                 DeQuantization();
                 IDCTMatrix();
@@ -233,8 +231,8 @@ namespace TelemetryDecoder.Decode
             }
 
             for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 8; j++)
-                DCT_T[i, j] = DCT[j, i];   
+                for (int j = 0; j < 8; j++)
+                    DCT_T[i, j] = DCT[j, i];
         }
 
         private void FillQuant()
@@ -244,7 +242,7 @@ namespace TelemetryDecoder.Decode
 
             if (_Q_Value <= 50)
             {
-                fs = Convert.ToSingle(5000 / _Q_Value); 
+                fs = Convert.ToSingle(5000 / _Q_Value);
             }
             else
             {
@@ -257,15 +255,15 @@ namespace TelemetryDecoder.Decode
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    QUANT[i,j] = Convert.ToInt32(QT_C[kq] * fs / 100);
+                    QUANT[i, j] = Convert.ToInt32(QT_C[kq] * fs / 100);
                     if (QUANT[i, j] < 1)
                     {
-                        QUANT[i,j] = 1;
+                        QUANT[i, j] = 1;
                     }
                     kq++;
                 }
             }
-        }       
+        }
 
         private int BitsToInteger(int Bits, int Value)
         {
@@ -277,7 +275,9 @@ namespace TelemetryDecoder.Decode
             return -(Value ^ ((1 << Bits) - 1));
         }
 
-        #region Find Huffman Code from bitstream.
+        /// <summary>
+        /// Find Huffman Code from bitstream.
+        /// </summary>
         private int HuffmanCodeOfDC()
         {
             int v, L;
@@ -303,9 +303,9 @@ namespace TelemetryDecoder.Decode
             return 0;
         }
 
-        #endregion
-
-        #region Чтение очередного бита.
+        /// <summary>
+        /// Чтение очередного бита.
+        /// </summary>
         private void AddNextBit(ref int v)
         {
             byte b;
@@ -314,7 +314,7 @@ namespace TelemetryDecoder.Decode
             {
                 ind_jpeg_in++;
 
-                _curByte = ind_jpeg_in == _dl_jpeg_in ? (byte) 0 : jpeg_buf_in[ind_jpeg_in];
+                _curByte = ind_jpeg_in == _dl_jpeg_in ? (byte)0 : jpeg_buf_in[ind_jpeg_in];
             }
 
             b = Convert.ToByte((_curByte >> (7 - CurBit)) & 0x01);
@@ -328,8 +328,6 @@ namespace TelemetryDecoder.Decode
 
             v = (v << 1) | b;
         }
-
-        #endregion
 
         private int ReadBits(int bits)
         {
@@ -345,7 +343,7 @@ namespace TelemetryDecoder.Decode
             return l;
         }
 
-        private void HuffmanCodeOfAC(out int Run,  out int Size)
+        private void HuffmanCodeOfAC(out int Run, out int Size)
         {
             int L;
             int v;
@@ -379,9 +377,9 @@ namespace TelemetryDecoder.Decode
         private void DeQuantization()
         {
             for (int j = 0; j < 8; j++)
-            for (int i = 0; i < 8; i++)
-                RES_DEQVANT[i, j] = RES_QVANT[i, j] * QUANT[i, j];
-               
+                for (int i = 0; i < 8; i++)
+                    RES_DEQVANT[i, j] = RES_QVANT[i, j] * QUANT[i, j];
+
         }
 
         private void IDCTMatrix()

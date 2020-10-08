@@ -73,9 +73,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Decode\Constants.cs" />
+    <Compile Include="Helpers\Constants.cs" />
     <Compile Include="Decode\Decoder.cs" />
-    <Compile Include="Decode\FileDecoder.cs" />
+    <Compile Include="Decode\DecoderFile.cs" />
     <Compile Include="MessageBoxes\FormDialogMessageBox.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -98,10 +98,10 @@
     <Compile Include="Decode\Jpeg.cs" />
     <Compile Include="Decode\ReedSolo.cs" />
     <Compile Include="Decode\Viterbi.cs" />
-    <Compile Include="Helpers\DisabledRichTextBox.cs">
+    <Compile Include="Gui Elements\DisabledRichTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Helpers\DoubleBufferedPanel.cs">
+    <Compile Include="Gui Elements\DoubleBufferedPanel.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Helpers\GuiUpdater.cs" />
@@ -118,7 +118,7 @@
     <EmbeddedResource Include="MessageBoxes\FormInformationMessageBox.resx">
       <DependentUpon>FormInformationMessageBox.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Helpers\DisabledRichTextBox.resx">
+    <EmbeddedResource Include="Gui Elements\DisabledRichTextBox.resx">
       <DependentUpon>DisabledRichTextBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

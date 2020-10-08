@@ -1,4 +1,4 @@
-﻿namespace TelemetryDecoder.Helpers
+﻿namespace TelemetryDecoder.GuiElements
 {
     class DisabledRichTextBox : System.Windows.Forms.RichTextBox
     {

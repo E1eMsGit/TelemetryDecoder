@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TelemetryDecoder.Decode
+namespace TelemetryDecoder.Helpers
 {
     static class Constants
     {
